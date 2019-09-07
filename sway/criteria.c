@@ -376,31 +376,31 @@ static char *get_focused_prop(enum criteria_token token, bool *autofail) {
 	struct sway_container *focus = seat_get_focused_container(seat);
 
 	struct sway_view *view = focus ? focus->view : NULL;
-	const char *value = NULL;
+	char *value = NULL;
 
 	switch (token) {
 	case T_APP_ID:
 		*autofail = true;
 		if (view) {
-			value = view_get_app_id(view);
+			value = strdup(view_get_app_id(view));
 		}
 		break;
 	case T_SHELL:
 		*autofail = true;
 		if (view) {
-			value = view_get_shell(view);
+			value = strdup(view_get_shell(view));
 		}
 		break;
 	case T_TITLE:
 		*autofail = true;
 		if (view) {
-			value = view_get_title(view);
+			value = strdup(view_get_title(view));
 		}
 		break;
 	case T_WORKSPACE:
 		*autofail = true;
 		if (focus && focus->workspace) {
-			value = focus->workspace->name;
+			value = strdup(focus->workspace->name);
 		}
 		break;
 	case T_CON_ID:
@@ -409,27 +409,29 @@ static char *get_focused_prop(enum criteria_token token, bool *autofail) {
 			size_t id = view->container->node.id;
 			size_t id_size = snprintf(NULL, 0, "%zu", id) + 1;
 			char *id_str = malloc(id_size);
-			snprintf(id_str, id_size, "%zu", id);
-			value = id_str;
+			if (id_str) {
+				snprintf(id_str, id_size, "%zu", id);
+				value = id_str;
+			}
 		}
 		break;
 #if HAVE_XWAYLAND
 	case T_CLASS:
 		*autofail = true;
 		if (view) {
-			value = view_get_class(view);
+			value = strdup(view_get_class(view));
 		}
 		break;
 	case T_INSTANCE:
 		*autofail = true;
 		if (view) {
-			value = view_get_instance(view);
+			value = strdup(view_get_instance(view));
 		}
 		break;
 	case T_WINDOW_ROLE:
 		*autofail = true;
 		if (view) {
-			value = view_get_window_role(view);
+			value = strdup(view_get_window_role(view));
 		}
 		break;
 	case T_WINDOW_TYPE: // These do not support __focused__
@@ -443,10 +445,7 @@ static char *get_focused_prop(enum criteria_token token, bool *autofail) {
 		*autofail = false;
 		break;
 	}
-	if (value) {
-		return strdup(value);
-	}
-	return NULL;
+	return value;
 }
 
 static bool parse_token(struct criteria *criteria, char *name, char *value) {

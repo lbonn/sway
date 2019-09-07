@@ -257,6 +257,9 @@ int main(int argc, char **argv) {
 			exit(EXIT_SUCCESS);
 			break;
 		case 'c': // config
+			if (config_path) {
+				free(config_path);
+			}
 			config_path = strdup(optarg);
 			break;
 		case 'C': // validate

@@ -209,6 +209,7 @@ list_t *execute_command(char *_exec, struct sway_seat *seat,
 		// passing a NULL seat means we just pick the default seat
 		seat = input_manager_get_default_seat();
 		if (!sway_assert(seat, "could not find a seat to run the command on")) {
+			free(exec);
 			return NULL;
 		}
 	}
