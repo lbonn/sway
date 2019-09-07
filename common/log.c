@@ -15,6 +15,7 @@ void _sway_abort(const char *format, ...) {
 	_sway_vlog(SWAY_ERROR, format, args);
 	va_end(args);
 	log_terminate(EXIT_FAILURE);
+	while(1);
 }
 
 bool _sway_assert(bool condition, const char *format, ...) {

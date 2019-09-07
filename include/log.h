@@ -16,8 +16,10 @@ typedef enum {
 
 #ifdef __GNUC__
 #define ATTRIB_PRINTF(start, end) __attribute__((format(printf, start, end)))
+#define ATTRIB_NORETURN __attribute__((noreturn))
 #else
 #define ATTRIB_PRINTF(start, end)
+#define ATTRIB_NORETURN
 #endif
 
 void error_handler(int sig);
@@ -30,7 +32,7 @@ void sway_log_init(sway_log_importance_t verbosity, terminate_callback_t termina
 
 void _sway_log(sway_log_importance_t verbosity, const char *format, ...) ATTRIB_PRINTF(2, 3);
 void _sway_vlog(sway_log_importance_t verbosity, const char *format, va_list args) ATTRIB_PRINTF(2, 0);
-void _sway_abort(const char *filename, ...) ATTRIB_PRINTF(1, 2);
+void _sway_abort(const char *filename, ...) ATTRIB_PRINTF(1, 2) ATTRIB_NORETURN;
 bool _sway_assert(bool condition, const char* format, ...) ATTRIB_PRINTF(2, 3);
 
 #ifdef SWAY_REL_SRC_DIR
