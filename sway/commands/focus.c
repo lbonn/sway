@@ -31,6 +31,25 @@ static bool parse_direction(const char *name,
 	return true;
 }
 
+enum cycle_dir {
+	CYCLE_DIR_NEXT,
+	CYCLE_DIR_PREV,
+};
+
+static bool parse_focus_cycle(const char *name,
+		enum cycle_dir *out) {
+	if (strcasecmp(name, "next") == 0) {
+		*out = CYCLE_DIR_NEXT;
+	} else if (strcasecmp(name, "prev")) {
+		*out = CYCLE_DIR_PREV;
+	} else {
+		return false;
+	}
+
+	return true;
+}
+
+
 /**
  * Get node in the direction of newly entered output.
  */
@@ -347,7 +366,28 @@ struct cmd_results *cmd_focus(int argc, char **argv) {
 	}
 
 	enum wlr_direction direction = 0;
-	if (!parse_direction(argv[0], &direction)) {
+
+	enum cycle_dir cdir;
+	if (parse_focus_cycle(argv[0], &cdir)) {
+		if (argc > 1 && strcasecmp(argv[1], "sibling") == 0) {
+			// TODO
+		}
+		switch (container->layout) {
+		case L_HORIZ:
+		case L_TABBED:
+			direction = cdir == CYCLE_DIR_NEXT ? WLR_DIRECTION_RIGHT : WLR_DIRECTION_LEFT;
+			break;
+		case L_VERT:
+		case L_STACKED:
+			direction = cdir == CYCLE_DIR_NEXT ? WLR_DIRECTION_DOWN : WLR_DIRECTION_UP;
+			break;
+		case L_NONE:
+			if (container_is_floating(container)) {
+				// TODO: ?
+				return cmd_results_new(CMD_SUCCESS, NULL);
+			}
+		}
+	} else if (!parse_direction(argv[0], &direction)) {
 		return cmd_results_new(CMD_INVALID,
 			"Expected 'focus <direction|parent|child|mode_toggle|floating|tiling>' "
 			"or 'focus output <direction|name>'");
